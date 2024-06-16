@@ -10,19 +10,19 @@ class Program
 
     static void Main(string[] args)
     {
-        int playerPositionX = 1; //Player관련 변수
+        int playerPositionX = 1; 
         int playerPositionY = 1;
         int playerMoveDistance = 1;
         bool isPlayerGhost = false;
 
-        int[] boxPositionX = { 3, 5, 2, 4, 8 }; //Box 위치 변수
+        int[] boxPositionX = { 3, 5, 2, 4, 8 }; 
         int[] boxPositionY = { 4, 6, 2, 10, 8 };
 
 
-        int[] blockPositionX = { 4, 5, 6, 9, 9 }; //Block위치 변수
+        int[] blockPositionX = { 4, 5, 6, 9, 9 }; 
         int[] blockPositionY = { 4, 4, 5, 7, 8 };
 
-        int[] goalPositionX = { 10, 10, 10, 10, 10 }; //Goal 변수
+        int[] goalPositionX = { 10, 10, 10, 10, 10 }; 
         int[] goalPositionY = { 10, 11, 12, 13, 14 };
 
         int itemPositionX = 15; //Item 위치 변수
@@ -32,18 +32,18 @@ class Program
         ConsoleKey key;
 
         const int BOX_IS_NOT_INTERACTED = -1000;
-        const int BOX_IS_BLOCKED_BY_SOMETHING = -2000; //박스 관련 상수
+        const int BOX_IS_BLOCKED_BY_SOMETHING = -2000; 
 
-        int tempPlayerX = playerPositionX; //플레이어 움직임 임시 변수
+        int tempPlayerX = playerPositionX; 
         int tempPlayerY = playerPositionY;
         Direction playerMoveDir = Direction.Right;
 
-        int InteractedBoxIndex; //박스 관련 임시변수
+        int InteractedBoxIndex; 
         int tempBoxPositionX;
         int tempBoxPositionY;
 
 
-        //화면 세팅 초기화
+        
         Console.ResetColor();
         Console.CursorVisible = false;
         Console.Title = "Sokoban";
@@ -62,7 +62,7 @@ class Program
             Input();
 
             isPlayerCanMove = MovePlayerPosition();
-            isBoxCanMove = MoveBoxPosition(out InteractedBoxIndex, out tempBoxPositionX, out tempBoxPositionY);
+            isBoxCanMove = MoveBoxPosition();
 
             if (isBoxCanMove == BOX_IS_BLOCKED_BY_SOMETHING || isPlayerCanMove == false) { continue; }
 
@@ -81,56 +81,65 @@ class Program
             }
 
             CheckPlayerGetItem();
+
             if(IsBoxesOnTheGoals())
             {
                 break;
             }
         }
 
-
-
+        
 
         void Render()
         {
+            string playerIcon = "▼";
+            string blockIcon_Idle = "□";
+            string blockIcon_WithPlayer = "▣";
+            string itemIcon = "♨";
+            string goalIcon_Idle = "☆";
+            string goalIcon_WithBox = "★";
+            string boxIcon = "◇";
+
+
             void DrawObject(int x, int y, string icon)
             {
                 Console.SetCursorPosition(x, y);
                 Console.Write(icon);
             }
 
-            //콘솔창 클리어
+            
             Console.Clear();
 
-            DrawObject(playerPositionX, playerPositionY, "▼");//플레이어 그리기
+            DrawObject(playerPositionX, playerPositionY, playerIcon);
 
-            //블록(고스트로 통과된 상태면 다른 아이콘으로 출력)
+            
             int blockCount = blockPositionX.Length;
             for (int i = 0; i < blockCount; i++)
             {
                 if (playerPositionX == blockPositionX[i] && playerPositionY == blockPositionY[i])
                 {
-                    DrawObject(blockPositionX[i], blockPositionY[i], "▣");
+                    DrawObject(blockPositionX[i], blockPositionY[i], blockIcon_WithPlayer);
                 }
                 else
                 {
-                    DrawObject(blockPositionX[i], blockPositionY[i], "□");
+                    DrawObject(blockPositionX[i], blockPositionY[i], blockIcon_Idle);
                 }
             }
 
-            //아이템
+            
             if (!isPlayerGhost)
             {
-                DrawObject(itemPositionX, itemPositionY, "♨");
+                DrawObject(itemPositionX, itemPositionY, itemIcon);
             }
 
-            //골
+           
             int goalCount = goalPositionX.Length;
             for (int i = 0; i < goalCount; i++)
             {
-                DrawObject(goalPositionX[i], goalPositionY[i], "☆");
+                DrawObject(goalPositionX[i], goalPositionY[i], goalIcon_Idle);
             }
 
-            //박스
+            
             int boxCount = boxPositionX.Length;
             for (int i = 0; i < boxCount; i++)
             {
@@ -138,12 +147,12 @@ class Program
                 {
                     if (boxPositionX[i] == goalPositionX[j] && boxPositionY[i] == goalPositionY[j])
                     {
-                        DrawObject(boxPositionX[i], boxPositionY[i], "★");
+                        DrawObject(boxPositionX[i], boxPositionY[i], goalIcon_WithBox);
                         break;
                     }
                     else
                     {
-                        DrawObject(boxPositionX[i], boxPositionY[i], "◇");
+                        DrawObject(boxPositionX[i], boxPositionY[i], boxIcon);
                     }
                 }
 
@@ -152,20 +161,20 @@ class Program
 
         void Input()
         {
-            inputKeyInfo = Console.ReadKey(); //사용자의 입력 받기
+            inputKeyInfo = Console.ReadKey();
             key = inputKeyInfo.Key;
         }
 
 
-        //오브젝트가 범위 밖으로 나는지 확인하는 함수
+        
         bool IsObjectOutOfBound(int objectPositionX, int objectPositionY)
             => (objectPositionX < 0 || objectPositionY < 0) ? true : false;
 
-        //오브젝트가 다른 오브젝트와 충돌하는지 확인하는 함수
+        
         bool isObjectsCollide(int ObjectPositionX1, int ObjectPositionY1, int ObjectPositionX2, int ObjectPositionY2)
             => (ObjectPositionX1 == ObjectPositionX2 && ObjectPositionY1 == ObjectPositionY2) ? true : false;
 
-        //오브젝트가 블럭과 충돌하는지 확인하는 함수
+        
         bool isObjectCollideBlock(int objectPositionX, int objectPositionY)
         {
             int blockCount = blockPositionX.Length;
@@ -179,7 +188,7 @@ class Program
             return false;
         }
 
-        //오브젝트 이동
+        
         void MoveObject(ref int objectX, ref int objectY, Direction dir, int distance)
         {
             if (dir == Direction.Up)
@@ -200,15 +209,13 @@ class Program
             }
         }
 
-
-
-
-        //플레이어 위치를 이동시켜서 유효한 움직임이면 true반환
+        
+        
         bool MovePlayerPosition()
         {
             tempPlayerX = playerPositionX;
             tempPlayerY = playerPositionY;
-            if (inputKeyInfo.Key == ConsoleKey.RightArrow)//사용자의 입력에 따른 플레이어 이동 계산
+            if (inputKeyInfo.Key == ConsoleKey.RightArrow)
             {
                 playerMoveDir = Direction.Right;
             }
@@ -242,8 +249,8 @@ class Program
             return true;
         }
 
-        //박스의 움직임에 따라서 움직인 박스의 인덱스, BOX_IS_NOT_INTERACTED, BOX_IS_BLOCKED_BY_SOMETHING 반환
-        int MoveBoxPosition(out int InteractedBoxIndex, out int tempBoxPositionX, out int tempBoxPositionY)
+        
+        int MoveBoxPosition()
         {
             InteractedBoxIndex = BOX_IS_NOT_INTERACTED;
             tempBoxPositionX = BOX_IS_NOT_INTERACTED;
@@ -264,10 +271,10 @@ class Program
 
             if (InteractedBoxIndex == BOX_IS_NOT_INTERACTED) { return BOX_IS_NOT_INTERACTED; }
 
-            //임시 박스 이동
+            
             MoveObject(ref tempBoxPositionX, ref tempBoxPositionY, playerMoveDir, playerMoveDistance);
 
-            //임시 박스가 막혀서 움직이지 않으면 BOX_IS_BLOCKED_BY_SOMETHING 반환
+            
             if (IsObjectOutOfBound(tempBoxPositionX, tempBoxPositionY))
             {
                 return BOX_IS_BLOCKED_BY_SOMETHING;
