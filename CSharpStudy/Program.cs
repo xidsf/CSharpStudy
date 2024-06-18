@@ -73,28 +73,28 @@
 
         void PushOut(ref int x, ref int y)
         {
-            Direction pushBackDirection;
+            Direction pushOutDirection;
 
             switch (playerMoveDir)
             {
                 case Direction.Left:
-                    pushBackDirection = Direction.Right;
+                    pushOutDirection = Direction.Right;
                     break;
                 case Direction.Right:
-                    pushBackDirection = Direction.Left;
+                    pushOutDirection = Direction.Left;
                     break;
                 case Direction.Up:
-                    pushBackDirection = Direction.Down;
+                    pushOutDirection = Direction.Down;
                     break;
                 case Direction.Down:
-                    pushBackDirection = Direction.Up;
+                    pushOutDirection = Direction.Up;
                     break;
                 default:
-                    pushBackDirection = Direction.Right;
+                    pushOutDirection = Direction.Right;
                     break;
             }
 
-            MoveObject(ref x, ref y, pushBackDirection, playerMoveDistance);
+            MoveObject(ref x, ref y, pushOutDirection, playerMoveDistance);
         }
 
         void InitGameState()
