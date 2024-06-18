@@ -1,7 +1,4 @@
-﻿using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
-
-class Program
+﻿class Program
 {
     enum Direction
     {
@@ -14,9 +11,11 @@ class Program
         int playerPositionY = 1;
         int playerMoveDistance = 1;
         bool isPlayerGhost;
+        Direction playerMoveDir;
 
         int[] boxPositionX = { 3, 5, 2, 4, 8 };
         int[] boxPositionY = { 4, 6, 2, 10, 8 };
+        int interactedBoxIndex;
 
         int[] blockPositionX = { 4, 5, 6, 9, 9 };
         int[] blockPositionY = { 4, 4, 5, 7, 8 };
@@ -27,46 +26,37 @@ class Program
         int itemPositionX = 15;
         int itemPositionY = 4;
 
-        int tempPlayerX;
-        int tempPlayerY;
-        Direction playerMoveDir;
-
-        int tempBoxPositionX;
-        int tempBoxPositionY;
-        int interactedBoxIndex;
-
-
         InitGameState();
-        
+
         while (true)
         {
             Render();
 
             ConsoleKey key = Input();
-
+            
             MovePlayer(key);
-            if(CanPlayerMove() == false)
+
+            if (CanPlayerMove() == false)
             {
+                OnObjectBlocked(() => PushOut(ref playerPositionX, ref playerPositionY));
                 continue;
             }
 
-            interactedBoxIndex = GetIndexOfInteractedBox(tempPlayerX, tempPlayerY);
+            interactedBoxIndex = GetIndexOfInteractedBox(playerPositionX, playerPositionY);
             if (interactedBoxIndex >= 0)
             {
                 MoveBox();
-                if(CanBoxMove() == false)
+
+                if (CanBoxMove() == false)
                 {
+                    OnObjectBlocked(() =>
+                    {
+                        PushOut(ref boxPositionX[interactedBoxIndex], ref boxPositionY[interactedBoxIndex]);
+                        PushOut(ref playerPositionX, ref playerPositionY);
+                    });
                     continue;
                 }
-                else
-                {
-                    boxPositionX[interactedBoxIndex] = tempBoxPositionX;
-                    boxPositionY[interactedBoxIndex] = tempBoxPositionY;
-                }
             }
-
-            playerPositionX = tempPlayerX;
-            playerPositionY = tempPlayerY;
 
             CheckPlayerGetItem();
 
@@ -74,6 +64,37 @@ class Program
             {
                 break;
             }
+        }
+
+        void OnObjectBlocked(Action action)
+        {
+            action.Invoke();
+        }
+
+        void PushOut(ref int x, ref int y)
+        {
+            Direction pushBackDirection;
+
+            switch (playerMoveDir)
+            {
+                case Direction.Left:
+                    pushBackDirection = Direction.Right;
+                    break;
+                case Direction.Right:
+                    pushBackDirection = Direction.Left;
+                    break;
+                case Direction.Up:
+                    pushBackDirection = Direction.Down;
+                    break;
+                case Direction.Down:
+                    pushBackDirection = Direction.Up;
+                    break;
+                default:
+                    pushBackDirection = Direction.Right;
+                    break;
+            }
+
+            MoveObject(ref x, ref y, pushBackDirection, playerMoveDistance);
         }
 
         void InitGameState()
@@ -203,9 +224,6 @@ class Program
 
         void MovePlayer(ConsoleKey key)
         {
-            tempPlayerX = playerPositionX;
-            tempPlayerY = playerPositionY;
-
             if (key == ConsoleKey.RightArrow)
             {
                 playerMoveDir = Direction.Right;
@@ -227,12 +245,12 @@ class Program
                 playerMoveDir = Direction.Down;
             }
 
-            MoveObject(ref tempPlayerX, ref tempPlayerY, playerMoveDir, playerMoveDistance);
+            MoveObject(ref playerPositionX, ref playerPositionY, playerMoveDir, playerMoveDistance);
         }
 
         bool CanPlayerMove()
         {
-            if (IsObjectOutOfBound(tempPlayerX, tempPlayerY))
+            if (IsObjectOutOfBound(playerPositionX, playerPositionY))
             {
                 return false;
             }
@@ -241,7 +259,7 @@ class Program
             {
                 for (int i = 0; i < blockPositionX.Length; i++)
                 {
-                    if (isObjectsCollide(tempPlayerX, tempPlayerY, blockPositionX[i], blockPositionY[i]))
+                    if (isObjectsCollide(playerPositionX, playerPositionY, blockPositionX[i], blockPositionY[i]))
                     {
                         return false;
                     }
@@ -250,7 +268,7 @@ class Program
             return true;
         }
 
-        int GetIndexOfInteractedBox(int interectObjectX, int interectObjectY) 
+        int GetIndexOfInteractedBox(int interectObjectX, int interectObjectY)
         {
             for (int i = 0; i < boxPositionX.Length; i++)
             {
@@ -264,21 +282,19 @@ class Program
 
         void MoveBox()
         {
-            tempBoxPositionX = boxPositionX[interactedBoxIndex];
-            tempBoxPositionY = boxPositionY[interactedBoxIndex];
-            MoveObject(ref tempBoxPositionX, ref tempBoxPositionY, playerMoveDir, playerMoveDistance);
+            MoveObject(ref boxPositionX[interactedBoxIndex], ref boxPositionY[interactedBoxIndex], playerMoveDir, playerMoveDistance);
         }
 
         bool CanBoxMove()
         {
-            if (IsObjectOutOfBound(tempBoxPositionX, tempBoxPositionY))
+            if (IsObjectOutOfBound(boxPositionX[interactedBoxIndex], boxPositionY[interactedBoxIndex]))
             {
                 return false;
             }
 
             for (int i = 0; i < blockPositionX.Length; i++)
             {
-                if (isObjectsCollide(tempBoxPositionX, tempBoxPositionY, blockPositionX[i], blockPositionY[i]))
+                if (isObjectsCollide(boxPositionX[interactedBoxIndex], boxPositionY[interactedBoxIndex], blockPositionX[i], blockPositionY[i]))
                 {
                     return false;
                 }
@@ -288,7 +304,7 @@ class Program
             {
                 if (interactedBoxIndex == i) continue;
 
-                if (isObjectsCollide(tempBoxPositionX, tempBoxPositionY, boxPositionX[i], boxPositionY[i]))
+                if (isObjectsCollide(boxPositionX[interactedBoxIndex], boxPositionY[interactedBoxIndex], boxPositionX[i], boxPositionY[i]))
                 {
                     return false;
                 }
@@ -322,7 +338,7 @@ class Program
                 }
             }
             if (countOfBoxOnTheGoal == goalPositionX.Length)
-            { 
+            {
                 return true;
             }
             else
