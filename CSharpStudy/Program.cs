@@ -10,144 +10,129 @@ class Program
 
     static void Main(string[] args)
     {
-        int playerPositionX = 1; 
+        int playerPositionX = 1;
         int playerPositionY = 1;
         int playerMoveDistance = 1;
-        bool isPlayerGhost = false;
+        bool isPlayerGhost;
 
-        int[] boxPositionX = { 3, 5, 2, 4, 8 }; 
+        int[] boxPositionX = { 3, 5, 2, 4, 8 };
         int[] boxPositionY = { 4, 6, 2, 10, 8 };
 
-
-        int[] blockPositionX = { 4, 5, 6, 9, 9 }; 
+        int[] blockPositionX = { 4, 5, 6, 9, 9 };
         int[] blockPositionY = { 4, 4, 5, 7, 8 };
 
-        int[] goalPositionX = { 10, 10, 10, 10, 10 }; 
+        int[] goalPositionX = { 10, 10, 10, 10, 10 };
         int[] goalPositionY = { 10, 11, 12, 13, 14 };
 
-        int itemPositionX = 15; //Item 위치 변수
+        int itemPositionX = 15;
         int itemPositionY = 4;
 
-        ConsoleKeyInfo inputKeyInfo;
-        ConsoleKey key;
+        int tempPlayerX;
+        int tempPlayerY;
+        Direction playerMoveDir;
 
-        const int BOX_IS_NOT_INTERACTED = -1000;
-        const int BOX_IS_BLOCKED_BY_SOMETHING = -2000; 
-
-        int tempPlayerX = playerPositionX; 
-        int tempPlayerY = playerPositionY;
-        Direction playerMoveDir = Direction.Right;
-
-        int InteractedBoxIndex; 
         int tempBoxPositionX;
         int tempBoxPositionY;
+        int interactedBoxIndex;
 
 
+        InitGameState();
         
-        Console.ResetColor();
-        Console.CursorVisible = false;
-        Console.Title = "Sokoban";
-        Console.BackgroundColor = ConsoleColor.Gray;
-        Console.ForegroundColor = ConsoleColor.DarkBlue;
-        Console.Clear();
-
-        isPlayerGhost = false;
-
-        bool isPlayerCanMove;
-        int isBoxCanMove;
-
         while (true)
         {
             Render();
-            Input();
 
-            isPlayerCanMove = MovePlayerPosition();
-            isBoxCanMove = MoveBoxPosition();
+            ConsoleKey key = Input();
 
-            if (isBoxCanMove == BOX_IS_BLOCKED_BY_SOMETHING || isPlayerCanMove == false) { continue; }
-
-            if (isPlayerCanMove && isBoxCanMove >= 0)
+            MovePlayer(key);
+            if(CanPlayerMove() == false)
             {
-                playerPositionX = tempPlayerX;
-                playerPositionY = tempPlayerY;
+                continue;
+            }
 
-                boxPositionX[InteractedBoxIndex] = tempBoxPositionX;
-                boxPositionY[InteractedBoxIndex] = tempBoxPositionY;
-            }
-            else if (isPlayerCanMove && isBoxCanMove == BOX_IS_NOT_INTERACTED)
+            interactedBoxIndex = GetIndexOfInteractedBox(tempPlayerX, tempPlayerY);
+            if (interactedBoxIndex >= 0)
             {
-                playerPositionX = tempPlayerX;
-                playerPositionY = tempPlayerY;
+                MoveBox();
+                if(CanBoxMove() == false)
+                {
+                    continue;
+                }
+                else
+                {
+                    boxPositionX[interactedBoxIndex] = tempBoxPositionX;
+                    boxPositionY[interactedBoxIndex] = tempBoxPositionY;
+                }
             }
+
+            playerPositionX = tempPlayerX;
+            playerPositionY = tempPlayerY;
 
             CheckPlayerGetItem();
 
-            if(IsBoxesOnTheGoals())
+            if (IsAllBoxesOnTheGoals())
             {
                 break;
             }
         }
 
-        
+        void InitGameState()
+        {
+            Console.ResetColor();
+            Console.CursorVisible = false;
+            Console.Title = "Sokoban";
+            Console.BackgroundColor = ConsoleColor.Gray;
+            Console.ForegroundColor = ConsoleColor.DarkBlue;
+            Console.Clear();
+
+            isPlayerGhost = false;
+        }
 
         void Render()
         {
             string playerIcon = "▼";
-            string blockIcon_Idle = "□";
-            string blockIcon_WithPlayer = "▣";
+            string blockIcon = "□";
+            string playerInBoxIcon = "▣";
             string itemIcon = "♨";
-            string goalIcon_Idle = "☆";
-            string goalIcon_WithBox = "★";
+            string goalIcon = "☆";
+            string boxOnGoalIcon = "★";
             string boxIcon = "◇";
 
-
-            void DrawObject(int x, int y, string icon)
-            {
-                Console.SetCursorPosition(x, y);
-                Console.Write(icon);
-            }
-
-            
             Console.Clear();
 
             DrawObject(playerPositionX, playerPositionY, playerIcon);
 
-            
-            int blockCount = blockPositionX.Length;
-            for (int i = 0; i < blockCount; i++)
+            for (int i = 0; i < blockPositionX.Length; i++)
             {
                 if (playerPositionX == blockPositionX[i] && playerPositionY == blockPositionY[i])
                 {
-                    DrawObject(blockPositionX[i], blockPositionY[i], blockIcon_WithPlayer);
+                    DrawObject(blockPositionX[i], blockPositionY[i], playerInBoxIcon);
                 }
                 else
                 {
-                    DrawObject(blockPositionX[i], blockPositionY[i], blockIcon_Idle);
+                    DrawObject(blockPositionX[i], blockPositionY[i], blockIcon);
                 }
             }
 
-            
             if (!isPlayerGhost)
             {
                 DrawObject(itemPositionX, itemPositionY, itemIcon);
             }
 
-           
-            int goalCount = goalPositionX.Length;
-            for (int i = 0; i < goalCount; i++)
+
+            for (int i = 0; i < goalPositionX.Length; i++)
             {
-                DrawObject(goalPositionX[i], goalPositionY[i], goalIcon_Idle);
+                DrawObject(goalPositionX[i], goalPositionY[i], goalIcon);
             }
 
-            
-            int boxCount = boxPositionX.Length;
-            for (int i = 0; i < boxCount; i++)
+
+            for (int i = 0; i < boxPositionX.Length; i++)
             {
-                for (int j = 0; j < boxCount; j++)
+                for (int j = 0; j < goalPositionX.Length; j++)
                 {
-                    if (boxPositionX[i] == goalPositionX[j] && boxPositionY[i] == goalPositionY[j])
+                    if (isObjectsCollide(boxPositionX[i], boxPositionY[i], goalPositionX[j], goalPositionY[j]))
                     {
-                        DrawObject(boxPositionX[i], boxPositionY[i], goalIcon_WithBox);
+                        DrawObject(boxPositionX[i], boxPositionY[i], boxOnGoalIcon);
                         break;
                     }
                     else
@@ -157,83 +142,96 @@ class Program
                 }
 
             }
-        }
-
-        void Input()
-        {
-            inputKeyInfo = Console.ReadKey();
-            key = inputKeyInfo.Key;
-        }
-
-
-        
-        bool IsObjectOutOfBound(int objectPositionX, int objectPositionY)
-            => (objectPositionX < 0 || objectPositionY < 0) ? true : false;
-
-        
-        bool isObjectsCollide(int ObjectPositionX1, int ObjectPositionY1, int ObjectPositionX2, int ObjectPositionY2)
-            => (ObjectPositionX1 == ObjectPositionX2 && ObjectPositionY1 == ObjectPositionY2) ? true : false;
-
-        
-        bool isObjectCollideBlock(int objectPositionX, int objectPositionY)
-        {
-            int blockCount = blockPositionX.Length;
-            for (int i = 0; i < blockCount; i++)
+            void DrawObject(int x, int y, string icon)
             {
-                if (isObjectsCollide(objectPositionX, objectPositionY, blockPositionX[i], blockPositionY[i]))
-                {
-                    return true;
-                }
+                Console.SetCursorPosition(x, y);
+                Console.Write(icon);
             }
-            return false;
         }
 
-        
-        void MoveObject(ref int objectX, ref int objectY, Direction dir, int distance)
+        ConsoleKey Input()
+        {
+            ConsoleKeyInfo inputKeyInfo = Console.ReadKey();
+            ConsoleKey key = inputKeyInfo.Key;
+            return key;
+        }
+
+
+        bool IsObjectOutOfBound(int x, int y)
+        {
+            if (x < 0 || y < 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        bool isObjectsCollide(int x1, int y1, int x2, int y2)
+        {
+            if (x1 == x2 && y1 == y2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        void MoveObject(ref int x, ref int y, Direction dir, int distance)
         {
             if (dir == Direction.Up)
             {
-                objectY = objectY - distance;
+                y = y - distance;
             }
             else if (dir == Direction.Down)
             {
-                objectY = objectY + distance;
+                y = y + distance;
             }
             else if (dir == Direction.Left)
             {
-                objectX = objectX - distance;
+                x = x - distance;
             }
             else if (dir == Direction.Right)
             {
-                objectX = objectX + distance;
+                x = x + distance;
             }
         }
 
-        
-        
-        bool MovePlayerPosition()
+        void MovePlayer(ConsoleKey key)
         {
             tempPlayerX = playerPositionX;
             tempPlayerY = playerPositionY;
-            if (inputKeyInfo.Key == ConsoleKey.RightArrow)
+
+            if (key == ConsoleKey.RightArrow)
             {
                 playerMoveDir = Direction.Right;
             }
-            else if (inputKeyInfo.Key == ConsoleKey.LeftArrow)
+            else if (key == ConsoleKey.LeftArrow)
             {
                 playerMoveDir = Direction.Left;
             }
-            else if (inputKeyInfo.Key == ConsoleKey.UpArrow)
+            else if (key == ConsoleKey.UpArrow)
             {
                 playerMoveDir = Direction.Up;
             }
-            else if (inputKeyInfo.Key == ConsoleKey.DownArrow)
+            else if (key == ConsoleKey.DownArrow)
+            {
+                playerMoveDir = Direction.Down;
+            }
+            else
             {
                 playerMoveDir = Direction.Down;
             }
 
             MoveObject(ref tempPlayerX, ref tempPlayerY, playerMoveDir, playerMoveDistance);
+        }
 
+        bool CanPlayerMove()
+        {
             if (IsObjectOutOfBound(tempPlayerX, tempPlayerY))
             {
                 return false;
@@ -241,7 +239,56 @@ class Program
 
             if (!isPlayerGhost)
             {
-                if (isObjectCollideBlock(tempPlayerX, tempPlayerY))
+                for (int i = 0; i < blockPositionX.Length; i++)
+                {
+                    if (isObjectsCollide(tempPlayerX, tempPlayerY, blockPositionX[i], blockPositionY[i]))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        int GetIndexOfInteractedBox(int interectObjectX, int interectObjectY) 
+        {
+            for (int i = 0; i < boxPositionX.Length; i++)
+            {
+                if (isObjectsCollide(interectObjectX, interectObjectY, boxPositionX[i], boxPositionY[i]))
+                {
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        void MoveBox()
+        {
+            tempBoxPositionX = boxPositionX[interactedBoxIndex];
+            tempBoxPositionY = boxPositionY[interactedBoxIndex];
+            MoveObject(ref tempBoxPositionX, ref tempBoxPositionY, playerMoveDir, playerMoveDistance);
+        }
+
+        bool CanBoxMove()
+        {
+            if (IsObjectOutOfBound(tempBoxPositionX, tempBoxPositionY))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < blockPositionX.Length; i++)
+            {
+                if (isObjectsCollide(tempBoxPositionX, tempBoxPositionY, blockPositionX[i], blockPositionY[i]))
+                {
+                    return false;
+                }
+            }
+
+            for (int i = 0; i < boxPositionX.Length; i++)
+            {
+                if (interactedBoxIndex == i) continue;
+
+                if (isObjectsCollide(tempBoxPositionX, tempBoxPositionY, boxPositionX[i], boxPositionY[i]))
                 {
                     return false;
                 }
@@ -249,76 +296,24 @@ class Program
             return true;
         }
 
-        
-        int MoveBoxPosition()
-        {
-            InteractedBoxIndex = BOX_IS_NOT_INTERACTED;
-            tempBoxPositionX = BOX_IS_NOT_INTERACTED;
-            tempBoxPositionY = BOX_IS_NOT_INTERACTED;
-
-            int boxCount = boxPositionX.Length;
-
-            for (int i = 0; i < boxCount; i++)
-            {
-                if (isObjectsCollide(boxPositionX[i], boxPositionY[i], tempPlayerX, tempPlayerY))
-                {
-                    InteractedBoxIndex = i;
-                    tempBoxPositionX = boxPositionX[i];
-                    tempBoxPositionY = boxPositionY[i];
-                    break;
-                }
-            }
-
-            if (InteractedBoxIndex == BOX_IS_NOT_INTERACTED) { return BOX_IS_NOT_INTERACTED; }
-
-            
-            MoveObject(ref tempBoxPositionX, ref tempBoxPositionY, playerMoveDir, playerMoveDistance);
-
-            
-            if (IsObjectOutOfBound(tempBoxPositionX, tempBoxPositionY))
-            {
-                return BOX_IS_BLOCKED_BY_SOMETHING;
-            }
-
-            if (isObjectCollideBlock(tempBoxPositionX, tempBoxPositionY))
-            {
-                return BOX_IS_BLOCKED_BY_SOMETHING;
-            }
-
-            for (int i = 0; i < boxCount; i++)
-            {
-                if (InteractedBoxIndex == i) continue;
-
-                if (isObjectsCollide(tempBoxPositionX, tempBoxPositionY, boxPositionX[i], boxPositionY[i]))
-                {
-                    return BOX_IS_BLOCKED_BY_SOMETHING;
-                }
-            }
-
-            return InteractedBoxIndex;
-        }
-
         void CheckPlayerGetItem()
         {
             if (!isPlayerGhost)
             {
-                if (playerPositionX == itemPositionX && playerPositionY == itemPositionY)
+                if (isObjectsCollide(playerPositionX, playerPositionY, itemPositionX, itemPositionY))
                 {
                     isPlayerGhost = true;
                 }
             }
         }
 
-        bool IsBoxesOnTheGoals()
+        bool IsAllBoxesOnTheGoals()
         {
             int countOfBoxOnTheGoal = 0;
 
-            int boxCount = boxPositionX.Length;
-            int goalCount = goalPositionX.Length;
-
-            for (int i = 0; i < goalCount; i++)
+            for (int i = 0; i < goalPositionX.Length; i++)
             {
-                for (int j = 0; j < boxCount; j++)
+                for (int j = 0; j < boxPositionX.Length; j++)
                 {
                     if (isObjectsCollide(goalPositionX[i], goalPositionY[i], boxPositionX[j], boxPositionY[j]))
                     {
@@ -326,9 +321,14 @@ class Program
                     }
                 }
             }
-            if (countOfBoxOnTheGoal == goalCount) { return true; }
-            else { return false; }
+            if (countOfBoxOnTheGoal == goalPositionX.Length)
+            { 
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
-
     }
 }
