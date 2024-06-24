@@ -5,6 +5,30 @@
     {
       "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\player.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\hiddenblock.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\hiddenblock.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\goal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\goal.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\block.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\item.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|c:\\users\\msi\\desktop\\vs\\csharpstudy\\csharpstudy\\box.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4E0A137-439B-47F6-866C-D47333D9E422}|CSharpStudy\\CSharpStudy.csproj|solutionrelative:csharpstudy\\box.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,8 +38,86 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 6,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "HiddenBlock.cs",
+              "DocumentMoniker": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\HiddenBlock.cs",
+              "RelativeDocumentMoniker": "CSharpStudy\\HiddenBlock.cs",
+              "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\HiddenBlock.cs",
+              "RelativeToolTip": "CSharpStudy\\HiddenBlock.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAAbAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-24T12:28:12.383Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Item.cs",
+              "DocumentMoniker": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Item.cs",
+              "RelativeDocumentMoniker": "CSharpStudy\\Item.cs",
+              "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Item.cs",
+              "RelativeToolTip": "CSharpStudy\\Item.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAZAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-24T11:59:06.214Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Goal.cs",
+              "DocumentMoniker": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Goal.cs",
+              "RelativeDocumentMoniker": "CSharpStudy\\Goal.cs",
+              "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Goal.cs",
+              "RelativeToolTip": "CSharpStudy\\Goal.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-24T11:40:31.105Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Block.cs",
+              "DocumentMoniker": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Block.cs",
+              "RelativeDocumentMoniker": "CSharpStudy\\Block.cs",
+              "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Block.cs",
+              "RelativeToolTip": "CSharpStudy\\Block.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAALAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-24T11:20:50.786Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Box.cs",
+              "DocumentMoniker": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Box.cs",
+              "RelativeDocumentMoniker": "CSharpStudy\\Box.cs",
+              "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Box.cs",
+              "RelativeToolTip": "CSharpStudy\\Box.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAEAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-24T11:19:28.641Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Player.cs",
+              "DocumentMoniker": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Player.cs",
+              "RelativeDocumentMoniker": "CSharpStudy\\Player.cs",
+              "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Player.cs",
+              "RelativeToolTip": "CSharpStudy\\Player.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAgAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-24T11:14:00.717Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +126,7 @@
               "RelativeDocumentMoniker": "CSharpStudy\\Program.cs",
               "ToolTip": "C:\\Users\\msi\\Desktop\\VS\\CSharpStudy\\CSharpStudy\\Program.cs",
               "RelativeToolTip": "CSharpStudy\\Program.cs",
-              "ViewState": "AQIAACsAAAAAAAAAAAAcwDsAAAAAAAAA",
+              "ViewState": "AQIAAIwBAAAAAAAAAAAAAKQBAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-06-18T12:56:40.996Z",
               "EditorCaption": ""
