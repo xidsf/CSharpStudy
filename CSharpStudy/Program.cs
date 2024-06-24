@@ -30,11 +30,11 @@ class Program
         HiddenBlock[] hiddenBlock = new HiddenBlock[10];
         for (int i = 0; i < 5; i++)
         {
-            hiddenBlock[i] = new HiddenBlock { positionX = 9, positionY = 9 + i, isHidden = true };
+            hiddenBlock[i] = new HiddenBlock { positionX = 9, positionY = 10 + i, isHidden = true };
         }
         for (int i = 5; i < 10; i++)
         {
-            hiddenBlock[i] = new HiddenBlock { positionX = 11, positionY = 9 + i, isHidden = true };
+            hiddenBlock[i] = new HiddenBlock { positionX = 11, positionY = 10 + i - 5, isHidden = true };
         }
         int appearedHiddenBlockCount = 0;
 
@@ -233,7 +233,6 @@ class Program
                         box[i].isOnGoal = false;
                     }
                 }
-
             }
 
             return true;
