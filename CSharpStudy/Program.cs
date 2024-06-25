@@ -1,50 +1,44 @@
-﻿using System;
+﻿using System.ComponentModel.Design;
 
 class Program
 {
-    class Unit
-    {
-        public int positionX;
-        public int positionY;
-    }
-
+    
     static void Main(string[] args)
     {
-        Player player = new Player();
+        Player player = new Player(1, 1);
 
         Box[] box = new Box[5];
-        box[0] = new Box { positionX = 3, positionY = 5 };
-        box[1] = new Box { positionX = 5, positionY = 6 };
-        box[2] = new Box { positionX = 2, positionY = 2 };
-        box[3] = new Box { positionX = 4, positionY = 10 };
-        box[4] = new Box { positionX = 8, positionY = 8 };
-        int interactedBoxIndex;
+        box[0] = new Box(3, 5);
+        box[1] = new Box(5, 6);
+        box[2] = new Box(2, 2);
+        box[3] = new Box(4, 10);
+        box[4] = new Box(8, 8);
 
         Block[] block = new Block[5];
-        block[0] = new Block { positionX = 4, positionY = 4 };
-        block[1] = new Block { positionX = 5, positionY = 4 };
-        block[2] = new Block { positionX = 6, positionY = 5 };
-        block[3] = new Block { positionX = 9, positionY = 7 };
-        block[4] = new Block { positionX = 9, positionY = 8 };
+        block[0] = new Block(4, 4);
+        block[1] = new Block(5, 4);
+        block[2] = new Block(6, 5);
+        block[3] = new Block(9, 7);
+        block[4] = new Block(9, 8);
 
-        HiddenBlock[] hiddenBlock = new HiddenBlock[10];
+        Block[] hiddenBlock = new Block[10];
         for (int i = 0; i < 5; i++)
         {
-            hiddenBlock[i] = new HiddenBlock { positionX = 9, positionY = 10 + i, isHidden = true };
+            hiddenBlock[i] = new Block(9, 10 + i, true);
         }
         for (int i = 5; i < 10; i++)
         {
-            hiddenBlock[i] = new HiddenBlock { positionX = 11, positionY = 10 + i - 5, isHidden = true };
+            hiddenBlock[i] = new Block(11, 10 + i - 5, true);
         }
         int appearedHiddenBlockCount = 0;
 
         Goal[] goal = new Goal[5];
         for (int i = 0; i < goal.Length; i++)
         {
-            goal[i] = new Goal { positionX = 10, positionY = 10 + i };
+            goal[i] = new Goal(10, 10 + i);
         }
 
-        Item item = new Item { positionX = 15, positionY = 4 };
+        Item item = new Item(15, 4);
 
 
         InitGameState();
@@ -54,15 +48,10 @@ class Program
             Render();
 
             ConsoleKey key = Input();
-            
-            SetPlayerMoveDir(key);
 
-            if(TryMovePlayer() == false || TryMoveBox() == false)
-            {
-                continue;
-            }
+            player.Move(key);
 
-            CheckPlayerGetItem();
+            CollisionCheck();
 
             if (IsAllBoxesOnTheGoals())
             {
@@ -78,61 +67,33 @@ class Program
             Console.BackgroundColor = ConsoleColor.Gray;
             Console.ForegroundColor = ConsoleColor.DarkBlue;
             Console.Clear();
-
-            player.isGhost = false;
         }
 
         void Render()
         {
-            string playerIcon = "▼";
-            string blockIcon = "□";
-            string playerInBoxIcon = "▣";
-            string itemIcon = "♨";
-            string goalIcon = "*";
-            string boxOnGoalIcon = "#";
-            string boxIcon = "◇";
-
             Console.Clear();
-
-            DrawObject(player.positionX, player.positionY, playerIcon);
+            DrawObject(player.positionX, player.positionY, player.playerIcon);
 
             for (int i = 0; i < block.Length; i++)
             {
                 if (block[i].isInPlayer)
                 {
-                    DrawObject(block[i].positionX, block[i].positionY, playerInBoxIcon);
+                    DrawObject(block[i].positionX, block[i].positionY, block[i].playerInIcon);
                 }
                 else
                 {
-                    DrawObject(block[i].positionX, block[i].positionY, blockIcon);
-                }
-            }
-
-            for (int i = 0; i < hiddenBlock.Length; i++)
-            {
-                if (hiddenBlock[i].isHidden)
-                {
-                    continue;
-                }
-
-                if (hiddenBlock[i].isInPlayer)
-                {
-                    DrawObject(hiddenBlock[i].positionX, hiddenBlock[i].positionY, playerInBoxIcon);
-                }
-                else
-                {
-                    DrawObject(hiddenBlock[i].positionX, hiddenBlock[i].positionY, blockIcon);
+                    DrawObject(block[i].positionX, block[i].positionY, block[i].Icon);
                 }
             }
 
             if (!player.isGhost)
             {
-                DrawObject(item.positionX, item.positionY, itemIcon);
+                DrawObject(item.positionX, item.positionY, item.itemIcon);
             }
 
             for (int i = 0; i < goal.Length; i++)
             {
-                DrawObject(goal[i].positionX, goal[i].positionY, goalIcon);
+                DrawObject(goal[i].positionX, goal[i].positionY, goal[i].Icon);
             }
 
             for (int i = 0; i < box.Length; i++)
@@ -141,16 +102,15 @@ class Program
                 {
                     if (box[i].isOnGoal)
                     {
-                        DrawObject(box[i].positionX, box[i].positionY, boxOnGoalIcon);
+                        DrawObject(box[i].positionX, box[i].positionY, box[i].boxOnIcon);
                         break;
                     }
                     else
                     {
-                        DrawObject(box[i].positionX, box[i].positionY, boxIcon);
+                        DrawObject(box[i].positionX, box[i].positionY, box[i].Icon);
                     }
                 }
             }
-
 
             void DrawObject(int x, int y, string icon)
             {
@@ -166,201 +126,78 @@ class Program
             return key;
         }
 
-        bool TryMovePlayer()
+        void CollisionCheck()
         {
-            MoveObject(ref player.positionX, ref player.positionY, player.playerMoveDir);
-            if (CheckPlayerMove() == false)
-            {
-                OnObjectBlocked(() => PushOut(ref player.positionX, ref player.positionY));
-                return false;
-            }
+            Action<Direction>? pushOut;
+            int interactedBoxIndex;
 
-            for (int i = 0; i < block.Length; i++)
-            {
-                if (isObjectsCollide(player.positionX, player.positionY, block[i].positionX, block[i].positionY))
-                {
-                    block[i].isInPlayer = true;
-                }
-                else
-                {
-                    block[i].isInPlayer = false;
-                }
-            }
+            MovePushedBox(out interactedBoxIndex);
+            pushOut = CalcBlockCollision(interactedBoxIndex);
 
-            for (int i = 0; i < hiddenBlock.Length; i++)
+            if (pushOut != null)
             {
-                if (isObjectsCollide(player.positionX, player.positionY, hiddenBlock[i].positionX, hiddenBlock[i].positionY))
-                {
-                    hiddenBlock[i].isInPlayer = true;
-                }
-                else
-                {
-                    hiddenBlock[i].isInPlayer = false;
-                }
+                pushOut.Invoke(ObjectManager.GetReverseDir(player.playerMoveDir));
             }
-
-            return true;
         }
 
-        bool TryMoveBox()
+        void MovePushedBox(out int interactedBoxIndex)
         {
-            interactedBoxIndex = GetIndexOfInteractedBox(player.positionX, player.positionY);
-            if (interactedBoxIndex >= 0)
-            {
-                MoveObject(ref box[interactedBoxIndex].positionX, ref box[interactedBoxIndex].positionY, player.playerMoveDir);
-
-                if (CheckBoxMove() == false)
-                {
-                    OnObjectBlocked(() =>
-                    {
-                        PushOut(ref box[interactedBoxIndex].positionX, ref box[interactedBoxIndex].positionY);
-                        PushOut(ref player.positionX, ref player.positionY);
-                    });
-                    return false;
-                }
-            }
-
             for (int i = 0; i < box.Length; i++)
             {
-                for (int j = 0; j < goal.Length; j++)
+                if (player.isCollide(box[i]))
                 {
-                    if (isObjectsCollide(box[i].positionX, box[i].positionY, goal[j].positionX, goal[j].positionY))
-                    {
-                        box[i].isOnGoal = true;
-                    }
-                    else
-                    {
-                        box[i].isOnGoal = false;
-                    }
+                    interactedBoxIndex = i;
+                    return;
                 }
             }
-
-            return true;
+            interactedBoxIndex = -1;
         }
 
-        void SetPlayerMoveDir(ConsoleKey key)
+        Action<Direction>? CalcBlockCollision(int movedBoxIndex)
         {
-            if (key == ConsoleKey.RightArrow)
-            {
-                player.playerMoveDir = Direction.Right;
-            }
-            else if (key == ConsoleKey.LeftArrow)
-            {
-                player.playerMoveDir = Direction.Left;
-            }
-            else if (key == ConsoleKey.UpArrow)
-            {
-                player.playerMoveDir = Direction.Up;
-            }
-            else if (key == ConsoleKey.DownArrow)
-            {
-                player.playerMoveDir = Direction.Down;
-            }
-            else
-            {
-                player.playerMoveDir = Direction.Down;
-            }
-        }
+            Action<Direction>? action = null;
 
-        bool CheckPlayerMove()
-        {
-            if (IsObjectOutOfBound(player.positionX, player.positionY))
-            {
-                return false;
-            }
-
-            if (!player.isGhost)
+            if (player.isGhost == false)
             {
                 for (int i = 0; i < block.Length; i++)
                 {
-                    if (isObjectsCollide(player.positionX, player.positionY, block[i].positionX, block[i].positionY))
+                    if (player.isCollide(block[i].positionX, block[i].positionY))
                     {
-                        return false;
+                        action = player.Move;
+                        return action;
+                    }
+                }
+            }
+
+            if (movedBoxIndex != -1)
+            {
+                for (int j = 0; j < block.Length; j++)
+                {
+                    if (box[movedBoxIndex].isCollide(block[j].positionX, block[j].positionY))
+                    {
+                        action = player.Move;
+                        action += box[movedBoxIndex].Move;
+                        return action;
                     }
                 }
 
-                for (int i = 0; i < hiddenBlock.Length; i++)
+                for (int i = 0; i < box.Length; i++)
                 {
-                    if (hiddenBlock[i].isHidden)
+                    if (i == movedBoxIndex)
                     {
                         continue;
                     }
-                    if (isObjectsCollide(player.positionX, player.positionY, hiddenBlock[i].positionX, hiddenBlock[i].positionY))
+
+                    if (box[movedBoxIndex].isCollide(box[i].positionX, box[i].positionY))
                     {
-                        return false;
+                        action = player.Move;
+                        action += box[movedBoxIndex].Move;
+                        return action;
                     }
                 }
-
-            }
-            return true;
-        }
-
-        int GetIndexOfInteractedBox(int interectObjectX, int interectObjectY)
-        {
-            for (int i = 0; i < box.Length; i++)
-            {
-                if (isObjectsCollide(interectObjectX, interectObjectY, box[i].positionX, box[i].positionY))
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-
-        bool CheckBoxMove()
-        {
-            if (IsObjectOutOfBound(box[interactedBoxIndex].positionX, box[interactedBoxIndex].positionY))
-            {
-                return false;
             }
 
-            for (int i = 0; i < block.Length; i++)
-            {
-                if (isObjectsCollide(box[interactedBoxIndex].positionX, box[interactedBoxIndex].positionY, block[i].positionX, block[i].positionY))
-                {
-                    return false;
-                }
-            }
-
-            for (int i = 0; i < box.Length; i++)
-            {
-                if (interactedBoxIndex == i)
-                {
-                    continue;
-                }
-
-                if (isObjectsCollide(box[interactedBoxIndex].positionX, box[interactedBoxIndex].positionY, box[i].positionX, box[i].positionY))
-                {
-                    return false;
-                }
-            }
-
-            for (int i = 0; i < box.Length; i++)
-            {
-                if (hiddenBlock[i].isHidden)
-                {
-                    continue;
-                }
-
-                if (isObjectsCollide(box[interactedBoxIndex].positionX, box[interactedBoxIndex].positionY, hiddenBlock[i].positionX, hiddenBlock[i].positionY))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        void CheckPlayerGetItem()
-        {
-            if (!player.isGhost)
-            {
-                if (isObjectsCollide(player.positionX, player.positionY, item.positionX, item.positionY))
-                {
-                    player.isGhost = true;
-                }
-            }
+            return action;
         }
 
         bool IsAllBoxesOnTheGoals()
@@ -371,7 +208,7 @@ class Program
             {
                 for (int j = 0; j < box.Length; j++)
                 {
-                    if (isObjectsCollide(goal[i].positionX, goal[i].positionY, box[j].positionX, box[j].positionY))
+                    if (box[j].isCollide(goal[i].positionX, goal[i].positionY))
                     {
                         countOfBoxOnTheGoal++;
                     }
@@ -402,16 +239,13 @@ class Program
                 Random random = new Random();
                 randNum = random.Next(10);
 
-                if (isObjectsCollide(hiddenBlock[randNum].positionX, hiddenBlock[randNum].positionY, player.positionX, player.positionY))
+                if (player.isCollide(hiddenBlock[randNum].positionX, hiddenBlock[randNum].positionY))
                 {
                     return false;
                 }
-                for (int i = 0; i < box.Length; i++)
+                if (hiddenBlock[randNum].isHidden != true)
                 {
-                    if (isObjectsCollide(hiddenBlock[randNum].positionX, hiddenBlock[randNum].positionY, block[i].positionX, block[i].positionY))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
                 hiddenBlock[randNum].isHidden = false;
@@ -419,82 +253,6 @@ class Program
             }
             
             return true;
-        }
-
-
-        void OnObjectBlocked(Action action)
-        {
-            action.Invoke();
-        }
-
-        void PushOut(ref int x, ref int y)
-        {
-            Direction pushOutDirection;
-
-            switch (player.playerMoveDir)
-            {
-                case Direction.Left:
-                    pushOutDirection = Direction.Right;
-                    break;
-                case Direction.Right:
-                    pushOutDirection = Direction.Left;
-                    break;
-                case Direction.Up:
-                    pushOutDirection = Direction.Down;
-                    break;
-                case Direction.Down:
-                    pushOutDirection = Direction.Up;
-                    break;
-                default:
-                    pushOutDirection = Direction.Right;
-                    break;
-            }
-
-            MoveObject(ref x, ref y, pushOutDirection);
-        }
-
-        bool IsObjectOutOfBound(int x, int y)
-        {
-            if (x < 0 || y < 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        bool isObjectsCollide(int x1, int y1, int x2, int y2)
-        {
-            if (x1 == x2 && y1 == y2)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        void MoveObject(ref int x, ref int y, Direction dir)
-        {
-            if (dir == Direction.Up)
-            {
-                y = y - 1;
-            }
-            else if (dir == Direction.Down)
-            {
-                y = y + 1;
-            }
-            else if (dir == Direction.Left)
-            {
-                x = x - 1;
-            }
-            else if (dir == Direction.Right)
-            {
-                x = x + 1;
-            }
         }
     }
 }
